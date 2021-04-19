@@ -20,24 +20,38 @@ gcloud container clusters \
 	--project $PROJECT_ID
 
 # build docker image
-docker build . -t releai-twitter \
-	--build-arg TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY \
-	--build-arg TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET \
-	--build-arg TWITTER_ACCESS_TOKEN_KEY=$TWITTER_ACCESS_TOKEN_KEY \
-	--build-arg TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET \
-	--build-arg APP_ID=$APP_ID \
-	--build-arg APP_HASH=$APP_HASH
+if [[ $(uname -m) == 'arm64' ]]; then
+	docker buildx \
+		build --platform=linux/amd64,linux/arm64,linux/arm/v7 \
+		. -t gcr.io/$PROJECT_ID/releai-twitter \
+		--build-arg TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY \
+		--build-arg TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET \
+		--build-arg TWITTER_ACCESS_TOKEN_KEY=$TWITTER_ACCESS_TOKEN_KEY \
+		--build-arg TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET \
+		--build-arg APP_ID=$APP_ID \
+		--build-arg APP_HASH=$APP_HASH \
+		--push
+else
+	docker build . -t releai-twitter \
+		--build-arg TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY \
+		--build-arg TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET \
+		--build-arg TWITTER_ACCESS_TOKEN_KEY=$TWITTER_ACCESS_TOKEN_KEY \
+		--build-arg TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET \
+		--build-arg APP_ID=$APP_ID \
+		--build-arg APP_HASH=$APP_HASH
 
-# push docker to GCR
-docker tag releai-twitter gcr.io/$PROJECT_ID/releai-twitter
-docker push gcr.io/$PROJECT_ID/releai-twitter
+	# push docker to GCR
+	docker tag releai-twitter gcr.io/$PROJECT_ID/releai-twitter
+	docker push gcr.io/$PROJECT_ID/releai-twitter
+fi
+
 
 # login to GCR
 cat $GOOGLE_APPLICATION_CREDENTIALS | docker login -u _json_key --password-stdin https://gcr.io
 
 # copy docker configs to k8s
 kubectl create secret generic regcred \
-	--from-file=.dockerconfigjson=~/.docker/config.json \
+	--from-file=.dockerconfigjson=$HOME/.docker/config.json \
 	--type=kubernetes.io/dockerconfigjson
 
 # let kubectl use the service account to pull images
