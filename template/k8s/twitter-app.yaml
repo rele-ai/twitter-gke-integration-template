@@ -27,6 +27,7 @@ kind: Service
 metadata:
   name: releai-twitter
 spec:
+  type: LoadBalancer
   selector:
     app: releai-twitter
   ports:

@@ -11,15 +11,7 @@ set -o allexport; source .env; set +o allexport
 cd $WORKING_DIR/terraform
 terraform init
 terraform apply -auto-approve
-
-# update configs with latest cluster host
-CLUSTER_HOST=$(terraform output | grep kubernetes_cluster_host | awk '{print $3}' | sed 's/"//g')
-
 cd $WORKING_DIR
-sed -i'.bkp' "s/PLACEHOLDER_BASE_URL/$CLUSTER_HOST/g" "$WORKING_DIR/configs/app.yaml"
-
-# apply changes
-rb apply -f "$WORKING_DIR/configs/app.yaml"
 
 # connect to gke cluster
 gcloud container clusters \
@@ -60,3 +52,12 @@ kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "gcr-jso
 
 # apply k8s configurations
 kubectl apply -f "$WORKING_DIR/k8s/twitter-app.yaml"
+
+# update configs with latest cluster host
+CLUSTER_HOST=$(kubectl get service releai-twitter | awk  '{print $4}' | grep -v IP)
+
+# replace placeholder with cluster host
+sed -i'.bkp' "s/PLACEHOLDER_BASE_URL/$CLUSTER_HOST/g" "$WORKING_DIR/configs/app.yaml"
+
+# apply changes
+rb apply -f "$WORKING_DIR/configs/app.yaml"
