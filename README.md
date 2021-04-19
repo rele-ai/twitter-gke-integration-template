@@ -8,7 +8,7 @@ This template provides an example for an integration between [RELE.AI](https://r
 - Twitter Credentials (with read/write permissions)
 - Kubectl
 - Terraform (We recommend [tfenv](https://github.com/tfutils/tfenv))
-- [RELE.AI CLI](https://github.com/rele-ai/cli) (version 0.1.14 and above)
+- [RELE.AI CLI](https://github.com/rele-ai/cli) (version 0.1.15 and above)
 
 ## Usage
 Initiate a project using this template by running the `rb create` command:
