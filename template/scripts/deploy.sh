@@ -13,7 +13,7 @@ terraform init
 terraform apply -auto-approve
 
 # update configs with latest cluster host
-CLUSTER_HOST=$(terraform output | grep kubernetes_cluster_host | awk '{print $3}')
+CLUSTER_HOST=$(terraform output | grep kubernetes_cluster_host | awk '{print $3}' | sed 's/"//g')
 
 cd $WORKING_DIR
 sed -i'.bkp' "s/PLACEHOLDER_BASE_URL/$CLUSTER_HOST/g" "$WORKING_DIR/configs/app.yaml"
