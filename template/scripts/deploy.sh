@@ -3,7 +3,9 @@
 # global variables
 WORKING_DIR=$(pwd)
 PROJECT_ID={{ GOOGLE_PROJECT_ID }}
-SERVICE_ACCOUNT_PATH={{ GOOGLE_APPLICATION_CREDENTIALS }}
+
+# load .env
+set -o allexport; source .env; set +o allexport
 
 # initiate terraform and provision GKE cluster
 cd $WORKING_DIR/terraform
@@ -27,17 +29,19 @@ gcloud container clusters \
 
 # build docker image
 docker build . -t releai-twitter \
-	--build-arg TWITTER_CONSUMER_KEY={{ TWITTER_CONSUMER_KEY }} \
-	--build-arg TWITTER_CONSUMER_SECRET={{ TWITTER_CONSUMER_SECRET }} \
-	--build-arg TWITTER_ACCESS_TOKEN_KEY={{ TWITTER_ACCESS_TOKEN_KEY }} \
-	--build-arg TWITTER_ACCESS_TOKEN_SECRET={{ TWITTER_ACCESS_TOKEN_SECRET }}
+	--build-arg TWITTER_CONSUMER_KEY=$TWITTER_CONSUMER_KEY \
+	--build-arg TWITTER_CONSUMER_SECRET=$TWITTER_CONSUMER_SECRET \
+	--build-arg TWITTER_ACCESS_TOKEN_KEY=$TWITTER_ACCESS_TOKEN_KEY \
+	--build-arg TWITTER_ACCESS_TOKEN_SECRET=$TWITTER_ACCESS_TOKEN_SECRET \
+	--build-arg APP_ID=$APP_ID \
+	--build-arg APP_HASH=$APP_HASH
 
 # push docker to GCR
 docker tag releai-twitter gcr.io/$PROJECT_ID/releai-twitter
 docker push gcr.io/$PROJECT_ID/releai-twitter
 
 # login to GCR
-cat $SERVICE_ACCOUNT_PATH | docker login -u _json_key --password-stdin https://gcr.io
+cat $GOOGLE_APPLICATION_CREDENTIALS | docker login -u _json_key --password-stdin https://gcr.io
 
 # copy docker configs to k8s
 kubectl create secret generic regcred \
@@ -48,7 +52,7 @@ kubectl create secret generic regcred \
 kubectl create secret docker-registry gcr-json-key \
 	--docker-server=gcr.io \
 	--docker-username=_json_key \
-	--docker-password="$(cat $SERVICE_ACCOUNT_PATH)" \
+	--docker-password="$(cat $GOOGLE_APPLICATION_CREDENTIALS)" \
 	--docker-email=support@rele.ai
 
 # update default service account

@@ -37,5 +37,5 @@ module.exports = {
             label: "NGROK Authtoken",
         },
     },
-    completeMessage: "{{#inPlace}}To get started:\n\n  npm install\n  rb app:tokens | grep 'APP_' >> .env\n  npm run dev OR rb deploy:[user/org]{{else}}To get started:\n\n  cd {{destDirName}}\n  npm install\n  rb app:tokens | grep 'APP_' >> .env\n  npm run dev OR rb deploy:[user/org]{{/inPlace}}"
+    completeMessage: "{{#inPlace}}To get started:\n\n  npm install\n  rb app:tokens | grep 'APP_' | sed 's/: /=/g' >> .env\n  npm run dev OR rb deploy:[user/org]{{else}}To get started:\n\n  cd {{destDirName}}\n  npm install\n  rb app:tokens | grep 'APP_' | sed 's/: /=/g' >> .env\n  npm run dev OR rb deploy:[user/org]{{/inPlace}}"
 }

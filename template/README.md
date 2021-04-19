@@ -19,7 +19,7 @@ Export RELE.AI's app credentials
 
 ```bash
 # get credentials and export them to the .env file
-rb app:tokens | grep "APP_" >> .env
+rb app:tokens | grep 'APP_' | sed 's/: /=/g' >> .env
 ```
 
 ## Local Development

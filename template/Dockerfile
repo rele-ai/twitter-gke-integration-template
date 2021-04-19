@@ -4,7 +4,7 @@ FROM node:lts
 WORKDIR /usr/src/app
 
 # Copy and install node modules
-COPY package*.json ./
+COPY package.json ./
 RUN npm install
 
 # COPY src code
@@ -22,6 +22,12 @@ ENV TWITTER_ACCESS_TOKEN_KEY=${TWITTER_ACCESS_TOKEN_KEY}
 
 ARG TWITTER_ACCESS_TOKEN_SECRET
 ENV TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
+
+ARG APP_ID
+ENV APP_ID=${APP_ID}
+
+ARG APP_HASH
+ENV APP_HASH=${APP_HASH}
 
 # Set entry point
 ENTRYPOINT [ "node", "./src/index.js" ]
