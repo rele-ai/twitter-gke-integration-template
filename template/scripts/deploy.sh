@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# global variables
+WORKING_DIR=$(pwd)
+PROJECT_ID={{ GOOGLE_PROJECT_ID }}
+SERVICE_ACCOUNT_PATH={{ GOOGLE_APPLICATION_CREDENTIALS }}
+
+# initiate terraform and provision GKE cluster
+cd $WORKING_DIR/terraform
+terraform init
+terraform apply -auto-approve
+
+# update configs with latest cluster host
+CLUSTER_HOST=$(terraform output | grep kubernetes_cluster_host | awk '{print $3}')
+
+cd $WORKING_DIR
+sed -i'.bkp' "s/PLACEHOLDER_BASE_URL/$CLUSTER_HOST/g" "$WORKING_DIR/configs/app.yaml"
+
+# apply changes
+rb apply -f "$WORKING_DIR/configs/app.yaml"
+
+# connect to gke cluster
+gcloud container clusters \
+	get-credentials releai-twitter \
+	--region us-central1 \
+	--project $PROJECT_ID
+
+# build docker image
+docker build . -t releai-twitter \
+	--build-arg TWITTER_CONSUMER_KEY={{ TWITTER_CONSUMER_KEY }} \
+	--build-arg TWITTER_CONSUMER_SECRET={{ TWITTER_CONSUMER_SECRET }} \
+	--build-arg TWITTER_ACCESS_TOKEN_KEY={{ TWITTER_ACCESS_TOKEN_KEY }} \
+	--build-arg TWITTER_ACCESS_TOKEN_SECRET={{ TWITTER_ACCESS_TOKEN_SECRET }}
+
+# push docker to GCR
+docker tag releai-twitter gcr.io/$PROJECT_ID/releai-twitter
+docker push gcr.io/$PROJECT_ID/releai-twitter
+
+# login to GCR
+cat $SERVICE_ACCOUNT_PATH | docker login -u _json_key --password-stdin https://gcr.io
+
+# copy docker configs to k8s
+kubectl create secret generic regcred \
+	--from-file=.dockerconfigjson=~/.docker/config.json \
+	--type=kubernetes.io/dockerconfigjson
+
+# let kubectl use the service account to pull images
+kubectl create secret docker-registry gcr-json-key \
+	--docker-server=gcr.io \
+	--docker-username=_json_key \
+	--docker-password="$(cat $SERVICE_ACCOUNT_PATH)" \
+	--docker-email=support@rele.ai
+
+# update default service account
+kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "gcr-json-key"}]}'
+
+# apply k8s configurations
+kubectl apply -f "$WORKING_DIR/k8s/twitter-app.yaml"

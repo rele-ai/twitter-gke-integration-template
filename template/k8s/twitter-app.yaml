@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: releai-twitter
+spec:
+  selector:
+    matchLabels:
+      app: releai-twitter
+  template:
+    metadata:
+      labels:
+        app: releai-twitter
+    spec:
+      containers:
+        - name: releai-twitter-app
+          image: gcr.io/{{ GOOGLE_PROJECT_ID }}/releai-twitter:latest
+          ports:
+            - name: grpc
+              containerPort: 9090
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: releai-twitter
+spec:
+  selector:
+    app: releai-twitter
+  ports:
+    - name: grpc
+      port: 9090
+      targetPort: 9090

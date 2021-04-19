@@ -1,0 +1,27 @@
+FROM node:lts
+
+# Define application working environment
+WORKDIR /usr/src/app
+
+# Copy and install node modules
+COPY package*.json ./
+RUN npm install
+
+# COPY src code
+COPY . .
+
+# Append environment variables
+ARG TWITTER_CONSUMER_KEY
+ENV TWITTER_CONSUMER_KEY=${TWITTER_CONSUMER_KEY}
+
+ARG TWITTER_CONSUMER_SECRET
+ENV TWITTER_CONSUMER_SECRET=${TWITTER_CONSUMER_SECRET}
+
+ARG TWITTER_ACCESS_TOKEN_KEY
+ENV TWITTER_ACCESS_TOKEN_KEY=${TWITTER_ACCESS_TOKEN_KEY}
+
+ARG TWITTER_ACCESS_TOKEN_SECRET
+ENV TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
+
+# Set entry point
+ENTRYPOINT [ "node", "./src/index.js" ]

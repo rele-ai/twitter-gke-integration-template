@@ -1,0 +1,16 @@
+# Twitter Application Description
+type: App
+# the base URL placeholder will be updated
+# upon k8s generation
+base_url: PLACEHOLDER_BASE_URL:9090
+tls: false
+key: twitter
+---
+# Describe the publish tweet action
+type: AppAction
+selector:
+  # point to the twitter application
+  app: twitter
+# define the action key, this will be used
+# to match the handler name
+key: publish_tweet

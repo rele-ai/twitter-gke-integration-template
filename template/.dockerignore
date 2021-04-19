@@ -1,0 +1,17 @@
+# K8S settings
+k8s/
+
+# RELE.AI Configs
+configs/
+
+# Deployment scripts
+scripts/
+
+# Node dependencies
+node_modules/
+
+# Terraform configurations
+terraform/
+
+# .env files
+.env

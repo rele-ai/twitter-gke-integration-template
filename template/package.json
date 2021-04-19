@@ -1,0 +1,19 @@
+{
+	"name": "releai-twitter-gke-example",
+	"version": "0.1.0",
+	"description": "RELE.AI Integration with Twitter on top of GKE",
+	"main": "src/index.js",
+	"scripts": {
+		"dev": "rb dev ./src/index.js",
+		"deploy": "sh ./scripts/deploy.sh",
+		"cleanup": "sh ./scripts/cleanup.sh"
+	},
+	"dependencies": {
+		"@releai/rb-node-sdk": "*",
+		"twitter-api-client": "^1.3.7",
+		"dotenv": "^8.2.0"
+	},
+	"devDependencies": {
+		"@releai/cli": "*"
+	}
+}

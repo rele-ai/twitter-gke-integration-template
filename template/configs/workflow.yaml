@@ -1,0 +1,99 @@
+# Describe the /new-tweet workflow
+type: Workflow
+match:
+  callback: exact_match
+  input: "/new-tweet"
+key: publish_tweet
+---
+# Ask the user for the content of the tweet
+type: Operation
+is_root: true
+selector:
+  workflow: publish_tweet
+  app: whatsapp
+  app_action: send_message
+next:
+  selector:
+    - type: operation
+      data:
+        workflow: publish_tweet
+        next: request_publish_tweet
+payload:
+  content:
+    type: raw
+    data: "I will love to publish a tweet for you 😀! What do you want the tweet to say?"
+key: get_tweet_content
+---
+# Send the content of the tweet to the service
+type: Operation
+selector:
+  workflow: publish_tweet
+  app: twitter
+  app_action: publish_tweet
+next:
+  selector:
+    - type: operation
+      data:
+        workflow: publish_tweet
+        next: check_response
+payload:
+  tweet_content:
+    type: request
+    data: message_data.message.body
+key: request_publish_tweet
+---
+# Check if the tweet was published
+type: Operation
+selector:
+  workflow: publish_tweet
+  app: core
+  app_action: switch_condition
+next:
+  selector:
+    - type: operation
+      data:
+        workflow: publish_tweet
+        next: notify_error
+payload:
+  condition:
+    data: request_publish_tweet:published
+    type: redis
+  case_1:
+    type: raw
+    data: true
+    match_operation: ==
+    next:
+      selector:
+        - type: operation
+          data:
+            workflow: publish_tweet
+            next: notify_success
+key: check_response
+---
+# Handle successful publish
+type: Operation
+selector:
+  workflow: publish_tweet
+  app: whatsapp
+  app_action: send_message
+output:
+  operation_type: drop_session
+payload:
+  content:
+    type: raw
+    data: "Cool! Your tweet is up 🐦"
+key: notify_success
+---
+# Handle errors in publish
+type: Operation
+selector:
+  workflow: publish_tweet
+  app: whatsapp
+  app_action: send_message
+output:
+  operation_type: drop_session
+payload:
+  content:
+    type: raw
+    data: "Something went wrong 😔. But don't you worry, you can check the server logs to learn more."
+key: notify_error
