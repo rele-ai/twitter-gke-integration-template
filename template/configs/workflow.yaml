@@ -9,7 +9,8 @@ key: publish_tweet
 type: Operation
 is_root: true
 selector:
-  workflow: publish_tweet
+  workflow:
+    - publish_tweet
   app: whatsapp
   app_action: send_message
 next:
@@ -27,7 +28,8 @@ key: get_tweet_content
 # Send the content of the tweet to the service
 type: Operation
 selector:
-  workflow: publish_tweet
+  workflow:
+    - publish_tweet
   app: twitter
   app_action: publish_tweet
 next:
@@ -45,7 +47,8 @@ key: request_publish_tweet
 # Check if the tweet was published
 type: Operation
 selector:
-  workflow: publish_tweet
+  workflow:
+    - publish_tweet
   app: core
   app_action: switch_condition
 next:
@@ -87,7 +90,8 @@ key: notify_success
 # Handle errors in publish
 type: Operation
 selector:
-  workflow: publish_tweet
+  workflow:
+    - publish_tweet
   app: whatsapp
   app_action: send_message
 output:
