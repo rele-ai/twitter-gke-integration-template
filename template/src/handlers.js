@@ -1,5 +1,9 @@
+const { RBS } = require("@releai/rb-node-sdk")
 const { TwitterClient } = require("twitter-api-client")
 const logger = require("@releai/rb-node-sdk/src/utils/logger")
+
+// create new router instance
+const router = new RBS.Router()
 
 /**
  * Publish a tweet to twitter using the provided
@@ -8,7 +12,7 @@ const logger = require("@releai/rb-node-sdk/src/utils/logger")
  * @param {Request} req - RB's request object.
  * @param {Response} res - RB's response object.
  */
-module.exports.publish_tweet = async (req, res) => {
+router.use("publish_tweet", async (req, res) => {
     // debug incoming request payload
     logger.debug({
         message: "recieved request to publish_tweet endpoing",
@@ -40,4 +44,7 @@ module.exports.publish_tweet = async (req, res) => {
         // notify rele.ai that the tweet hasn't been published
         res.send(200, { published: false })
     }
-}
+})
+
+// export default router
+module.exports = router
