@@ -10,8 +10,8 @@
 	},
 	"dependencies": {
 		"@releai/rb-node-sdk": "*",
-		"twitter-api-client": "^1.3.7",
-		"dotenv": "^8.2.0"
+		"twitter-api-client": "^1.3.8",
+		"dotenv": "^9.0.2"
 	},
 	"devDependencies": {
 		"@releai/cli": "*"
