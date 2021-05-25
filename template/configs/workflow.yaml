@@ -76,7 +76,8 @@ key: check_response
 # Handle successful publish
 type: Operation
 selector:
-  workflow: publish_tweet
+  workflow:
+    - publish_tweet
   app: whatsapp
   app_action: send_message
 output:
