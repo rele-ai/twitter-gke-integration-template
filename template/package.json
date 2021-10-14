@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "rb dev ./src/index.js",
 		"deploy": "sh ./scripts/deploy.sh",
+		"tokens": "node ./scripts/tokens.js",
 		"cleanup": "sh ./scripts/cleanup.sh"
 	},
 	"dependencies": {
